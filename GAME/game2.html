@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>俄罗斯方块</title>
+    <link rel="stylesheet" href="style.css">
+    <style>
+        .back-to-menu {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            padding: 10px 20px;
+            font-size: 16px;
+            cursor: pointer;
+            background-color: #f44336;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            transition: background-color 0.3s;
+            z-index: 1000;
+        }
+        .back-to-menu:hover {
+            background-color: #d32f2f;
+        }
+    </style>
+</head>
+<body>
+    <button class="back-to-menu" onclick="window.location.href='index.html'">
+        返回导航页面
+    </button>
+    <div id="main-menu" class="main-menu">
+        <h1>俄罗斯方块</h1>
+        <div class="high-scores">
+            <div class="score-item">经典模式最高分: <span id="classicHighScore">0</span></div>
+            <div class="score-item">极速模式最高分: <span id="speedHighScore">0</span></div>
+            <button id="resetHighScoreBtn" class="reset-btn">重置最高分</button>
+        </div>
+        <div class="menu-buttons">
+            <button id="start-game-btn">开始游戏</button>
+            <button id="tutorial-btn">游戏教程</button>
+        </div>
+    </div>
+
+    <!-- 添加模式选择菜单 -->
+    <div id="mode-select" class="mode-select hidden">
+        <h2>选择游戏模式</h2>
+        <div class="mode-cards">
+            <div class="mode-card" data-mode="classic">
+                <h3>经典模式</h3>
+                <p>传统的俄罗斯方块玩法</p>
+                <ul>
+                    <li>经典七种方块</li>
+                    <li>逐级加速</li>
+                    <li>无特殊规则</li>
+                    <li>当前下落方块无法移动且触顶时结束</li>
+                </ul>
+                <button class="start-btn" data-mode="classic">开始游戏</button>
+            </div>
+            <div class="mode-card" data-mode="speed">
+                <h3>极速模式</h3>
+                <p>快节奏的挑战模式</p>
+                <ul>
+                    <li>更快的初始速度</li>
+                    <li>加速更快</li>
+                    <li>得分翻倍</li>
+                    <li>每10秒底部上升一行</li>
+                    <li>方块超过倒数第3行即结束</li>
+                </ul>
+                <button class="start-btn" data-mode="speed">开始游戏</button>
+            </div>
+            <div class="mode-card" data-mode="zen">
+                <h3>禅模式</h3>
+                <p>轻松休闲的玩法</p>
+                <ul>
+                    <li>固定速度</li>
+                    <li>无等级提升</li>
+                    <li>无失败条件</li>
+                </ul>
+                <button class="start-btn" data-mode="zen">开始游戏</button>
+            </div>
+        </div>
+        <button id="back-to-menu" class="back-btn">返回主菜单</button>
+    </div>
+
+    <!-- 教程弹窗 -->
+    <div id="tutorial-modal" class="modal">
+        <div class="modal-content">
+            <h2>游戏教程</h2>
+            <div class="tutorial-content">
+                <h3>键盘控制：</h3>
+                <p>1. 使用方向键或WASD控制方块移动和旋转</p>
+                <p>2. 方块可以左右移动，向下加速</p>
+                <p>3. 空格键可以直接将方块落到底部</p>
+                <p>4. P键可以暂停/继续游戏</p>
+                
+                <h3>按键控制：</h3>
+                <p>1. 上箭头按钮：旋转方块</p>
+                <p>2. 左右箭头按钮：移动方块</p>
+                <p>3. 下箭头按钮：加速下落</p>
+                <p>4. 中心圆形按钮：直接落到底部</p>
+                
+                <h3>游戏规则：</h3>
+                <p>1. 消除一整行可以得分</p>
+                <p>2. 同时消除多行可以获得更高分数</p>
+                <p>3. 当前下落方块无法移动且触顶时游戏结束</p>
+            </div>
+            <button id="close-tutorial">关闭</button>
+        </div>
+    </div>
+
+    <!-- 暂停菜单 -->
+    <div id="pause-menu" class="modal">
+        <div class="modal-content">
+            <h2>游戏暂停</h2>
+            <button id="resume-btn">继续游戏</button>
+            <button id="restart-btn">重新开始</button>
+            <button id="pause-menu-back-btn">返回主菜单</button>
+        </div>
+    </div>
+
+    <!-- 在暂停菜单后面添加游戏结束界面 -->
+    <div id="game-over-modal" class="modal">
+        <div class="modal-content game-over-content">
+            <h2>游戏结束</h2>
+            <div class="final-score">
+                <div class="score-item">
+                    <span>最终得分</span>
+                    <span id="final-score">0</span>
+                </div>
+                <div class="score-item">
+                    <span>最高等级</span>
+                    <span id="final-level">1</span>
+                </div>
+            </div>
+            <div class="game-over-buttons">
+                <button id="restart-game-btn">重新开始</button>
+                <button id="back-to-menu-btn">返回主菜单</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 添加重置确认弹窗 -->
+    <div id="confirmModal" class="confirm-modal hidden">
+        <div class="confirm-content">
+            <h3>选择要重置的最高分</h3>
+            <div class="reset-options">
+                <label class="reset-option">
+                    <input type="checkbox" id="resetClassic" checked>
+                    经典模式
+                </label>
+                <label class="reset-option">
+                    <input type="checkbox" id="resetSpeed" checked>
+                    极速模式
+                </label>
+            </div>
+            <div class="button-container">
+                <button id="confirmResetBtn" class="confirm-btn">确定</button>
+                <button id="cancelResetBtn" class="cancel-btn">取消</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 添加���置成功提示 -->
+    <div id="successModal" class="success-modal hidden">
+        <div class="success-content">
+            <h3>重置成功</h3>
+            <p>已重置选中模式的最高分</p>
+            <button id="successOkBtn" class="ok-btn">确定</button>
+        </div>
+    </div>
+
+    <div id="game-container" class="container" style="display: none;">
+        <div class="game-area">
+            <div class="game-board"></div>
+            <div class="controls-panel">
+                <div class="game-info">
+                    <div class="score">分数: <span id="score">0</span></div>
+                    <div class="level">等级: <span id="level">1</span></div>
+                </div>
+                <div class="game-controls">
+                    <button id="pause-btn">暂停</button>
+                    <button id="back-btn">返回主菜单</button>
+                </div>
+                <div class="direction-controls">
+                    <div class="direction-circle">
+                        <button class="direction-btn up">↑</button>
+                        <button class="direction-btn right">→</button>
+                        <button class="direction-btn down">↓</button>
+                        <button class="direction-btn left">←</button>
+                        <button class="direction-btn center" title="直接落下">●</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script src="tetris.js"></script>
+</body>
+</html> 
